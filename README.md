@@ -92,6 +92,52 @@ Ou, se preferir instalar só o core:
 
 ---
 
+## Migração entre máquinas / Compartilhamento com devs
+
+Este repositório não contém `.env`, `scripts/config.json` nem `data/` (tickets,
+índice RAG etc.) — tudo isso é ignorado pelo git por conter credenciais e dados
+de negócio. Para levar esse conteúdo de uma máquina para outra (ou compartilhar
+com outro dev), use os scripts de export/import:
+
+### Na máquina de origem (gerar o pacote)
+
+```bash
+py scripts/export-local-data.py
+```
+
+Gera `dumps/glpi-local-data_<timestamp>.zip` com tudo que está fora do git
+(`.env`, `data/`, dumps `_*.txt`). Envie esse zip para o destino (Drive,
+pendrive, etc.).
+
+### Na máquina de destino (restaurar)
+
+```bash
+# 1. Clonar o repositório
+git clone git@github.com:jadsonmorais/carmel-glpi-toolkit.git carmel/glpi
+cd carmel/glpi
+
+# 2. Instalar dependências
+py -m pip install -r requirements.txt
+
+# 3. Copiar o zip recebido para dumps/ e restaurar
+py scripts/import-local-data.py
+```
+
+O script lista o conteúdo do zip e pede confirmação antes de extrair
+(`.env`, `data/*.md`, vectordb etc.).
+
+### Validar
+
+```bash
+py scripts/_orphans.py
+# ou
+py scripts/analyze-backlog.py
+```
+
+Se rodar sem erro de token/config, a restauração funcionou.
+
+---
+
 ## Uso
 
 ### Processamento incremental de tickets
