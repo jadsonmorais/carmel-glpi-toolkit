@@ -10,6 +10,9 @@ data/
 # Dumps/outputs temporários de sessão (dados de chamados/negócio)
 /_*.txt
 
+# Pacotes gerados por export-local-data.py
+/dumps/
+
 # Cache Python
 __pycache__/
 *.py[cod]
