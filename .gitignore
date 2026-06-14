@@ -1,0 +1,32 @@
+# Dados sensíveis e configurações locais
+.env
+scripts/config.json
+scripts/*.json
+!scripts/config.json.example
+
+# Dados processados (gerados localmente, contém dados de chamados/negócio - não versionar)
+data/
+
+# Dumps/outputs temporários de sessão (dados de chamados/negócio)
+/_*.txt
+
+# Cache Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Ambientes virtuais
+venv/
+env/
+ENV/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Sistema operacional
+.DS_Store
+Thumbs.db

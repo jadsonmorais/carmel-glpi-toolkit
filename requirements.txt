@@ -1,0 +1,7 @@
+# Dependências core (sem dependências externas de API)
+# Usadas por: incremental-update.py, analyze-backlog.py, tag-manager.py
+# Nenhuma dependência extra necessária — usam apenas urllib e stdlib
+
+# Dependências RAG (opcionais — só necessárias para rag-build.py e rag-query.py)
+chromadb>=0.4.0
+sentence-transformers>=2.2.0

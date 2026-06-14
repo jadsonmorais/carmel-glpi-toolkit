@@ -1,0 +1,9 @@
+{
+  "_comment": "Copie este arquivo para config.json e preencha com seus dados do GLPI/VerdanaDesk",
+  "url_list": "https://SEU-GLPI/plugins/utilsdashboards/front/ajax/graphic.json.php?token=SEU_TOKEN_LISTA",
+  "url_bulk": "https://SEU-GLPI/plugins/utilsdashboards/front/ajax/graphic.json.php?token=SEU_TOKEN_BULK",
+  "glpi_base_url": "https://SEU-GLPI",
+  "app_token": "SEU_APP_TOKEN",
+  "user_token": "SEU_USER_TOKEN",
+  "url_assets": "https://SEU-GLPI/plugins/utilsdashboards/front/ajax/graphic.json.php?token=SEU_TOKEN_ASSETS"
+}
