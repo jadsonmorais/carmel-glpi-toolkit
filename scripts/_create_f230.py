@@ -6,6 +6,8 @@ creds = {
     'user_token': os.environ.get('GLPI_USER_TOKEN'),
     'base_url': (os.environ.get('GLPI_URL') or 'https://carmelhoteis.verdanadesk.com').rstrip('/') + '/apirest.php'
 }
+BACKLOG = 11
+F23 = 2746
 
 def req(method, endpoint, body=None, st=None):
     url = f"{creds['base_url']}/{endpoint}"
@@ -25,8 +27,21 @@ def req(method, endpoint, body=None, st=None):
 sess = req('GET', 'initSession')
 st = sess['session_token']
 
-r = req('GET', 'Project?range=0-50', st=st)
-for p in r:
-    print(f"[{p.get('id')}] code='{p.get('code')}' name='{p.get('name')}' state={p.get('projectstates_id')}")
-
+body = {
+    "input": {
+        "projects_id": 256,
+        "projecttasks_id": F23,
+        "name": "F2.3.0 - Definir estrategia de protecao para tablets PDV (hardware restrito)",
+        "content": "Os tablets do PDV tem hardware mais restrito que as workstations. Validar com "
+                    "a gestao de TI se essas maquinas terao o Kaspersky instalado normalmente ou "
+                    "se a estrategia sera apenas GPO especifica e restrita + firewall basico do "
+                    "sistema operacional (sem antivirus completo). Decisao impacta o escopo de "
+                    "F2.3 (parametrizacao Kaspersky) e F3.1 (GPO do PDV).",
+        "projectstates_id": BACKLOG,
+        "is_milestone": 0,
+        "percent_done": 0,
+    }
+}
+r = req('POST', 'ProjectTask', body=body, st=st)
+print(r)
 req('GET', 'killSession', st=st)

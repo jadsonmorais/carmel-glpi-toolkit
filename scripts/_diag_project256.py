@@ -12,9 +12,12 @@ def req(method, endpoint, body=None, st=None):
     data = json.dumps(body).encode() if body else None
     r = urllib.request.Request(url, data=data, method=method)
     r.add_header('App-Token', creds['app_token'])
-    if st: r.add_header('Session-Token', st)
-    else: r.add_header('Authorization', f"user_token {creds['user_token']}")
-    if body: r.add_header('Content-Type', 'application/json')
+    if st:
+        r.add_header('Session-Token', st)
+    else:
+        r.add_header('Authorization', f"user_token {creds['user_token']}")
+    if body:
+        r.add_header('Content-Type', 'application/json')
     try:
         with urllib.request.urlopen(r, timeout=30) as resp:
             raw = resp.read().decode()
@@ -25,8 +28,20 @@ def req(method, endpoint, body=None, st=None):
 sess = req('GET', 'initSession')
 st = sess['session_token']
 
-r = req('GET', 'Project?range=0-50', st=st)
-for p in r:
-    print(f"[{p.get('id')}] code='{p.get('code')}' name='{p.get('name')}' state={p.get('projectstates_id')}")
+p = req('GET', 'Project/256', st=st)
+print("=== PROJETO 256 ===")
+print(f"Nome: {p.get('name')}")
+print(f"Conteudo: {p.get('content')}")
+print(f"Status (projectstates_id): {p.get('projectstates_id')}")
+print(f"Inicio: {p.get('plan_start_date')} | Fim: {p.get('plan_end_date')}")
+print()
+
+tasks = req('GET', 'Project/256/ProjectTask', st=st)
+print(f"=== TAREFAS ({len(tasks) if isinstance(tasks, list) else 0}) ===")
+if isinstance(tasks, list):
+    for t in tasks:
+        print(f"- [{t.get('id')}] {t.get('name')} | status={t.get('projectstates_id')} | %={t.get('percent_done')}")
+else:
+    print(tasks)
 
 req('GET', 'killSession', st=st)

@@ -22,11 +22,22 @@ def req(method, endpoint, body=None, st=None):
     except urllib.error.HTTPError as e:
         return {'error': f"HTTP {e.code}: {e.read().decode()}"}
 
+codes = {
+    248: "PROJ-2026-OPERACIONAL-GERAL",
+    249: "PROJ-2026-NONIUS-MAGNA",
+    250: "PROJ-2026-NONIUS-TAIBA",
+    251: "PROJ-2026-GOVERNANCA-SHADOWIT",
+    252: "PROJ-2026-FISCAL-FNRH",
+    253: "PROJ-2026-PMWEB-OBRAS",
+    254: "PROJ-2026-COMPLIANCE-LICENCAS",
+    256: "PROJ-2026-PDV-SIMPHONY",
+}
+
 sess = req('GET', 'initSession')
 st = sess['session_token']
 
-r = req('GET', 'Project?range=0-50', st=st)
-for p in r:
-    print(f"[{p.get('id')}] code='{p.get('code')}' name='{p.get('name')}' state={p.get('projectstates_id')}")
+for pid, code in codes.items():
+    r = req('PUT', f'Project/{pid}', body={"input": {"id": pid, "code": code}}, st=st)
+    print(f"[{pid}] -> {code}: {r}")
 
 req('GET', 'killSession', st=st)

@@ -12,9 +12,12 @@ def req(method, endpoint, body=None, st=None):
     data = json.dumps(body).encode() if body else None
     r = urllib.request.Request(url, data=data, method=method)
     r.add_header('App-Token', creds['app_token'])
-    if st: r.add_header('Session-Token', st)
-    else: r.add_header('Authorization', f"user_token {creds['user_token']}")
-    if body: r.add_header('Content-Type', 'application/json')
+    if st:
+        r.add_header('Session-Token', st)
+    else:
+        r.add_header('Authorization', f"user_token {creds['user_token']}")
+    if body:
+        r.add_header('Content-Type', 'application/json')
     try:
         with urllib.request.urlopen(r, timeout=30) as resp:
             raw = resp.read().decode()
@@ -25,8 +28,11 @@ def req(method, endpoint, body=None, st=None):
 sess = req('GET', 'initSession')
 st = sess['session_token']
 
-r = req('GET', 'Project?range=0-50', st=st)
-for p in r:
-    print(f"[{p.get('id')}] code='{p.get('code')}' name='{p.get('name')}' state={p.get('projectstates_id')}")
+r = req('GET', 'ProjectTask/2736', st=st)
+print(sorted(r.keys()))
+print("is_milestone:", r.get('is_milestone'))
+print("projecttasktemplates_id:", r.get('projecttasktemplates_id'))
+print("projecttasktypes_id:", r.get('projecttasktypes_id'))
+print("projecttasks_id:", r.get('projecttasks_id'))
 
 req('GET', 'killSession', st=st)

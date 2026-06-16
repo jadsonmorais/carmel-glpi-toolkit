@@ -12,9 +12,12 @@ def req(method, endpoint, body=None, st=None):
     data = json.dumps(body).encode() if body else None
     r = urllib.request.Request(url, data=data, method=method)
     r.add_header('App-Token', creds['app_token'])
-    if st: r.add_header('Session-Token', st)
-    else: r.add_header('Authorization', f"user_token {creds['user_token']}")
-    if body: r.add_header('Content-Type', 'application/json')
+    if st:
+        r.add_header('Session-Token', st)
+    else:
+        r.add_header('Authorization', f"user_token {creds['user_token']}")
+    if body:
+        r.add_header('Content-Type', 'application/json')
     try:
         with urllib.request.urlopen(r, timeout=30) as resp:
             raw = resp.read().decode()
@@ -25,8 +28,8 @@ def req(method, endpoint, body=None, st=None):
 sess = req('GET', 'initSession')
 st = sess['session_token']
 
-r = req('GET', 'Project?range=0-50', st=st)
-for p in r:
-    print(f"[{p.get('id')}] code='{p.get('code')}' name='{p.get('name')}' state={p.get('projectstates_id')}")
+# search all project tasks filtering by project
+r = req('GET', 'search/ProjectTask?criteria[0][field]=80&criteria[0][searchtype]=equals&criteria[0][value]=244&forcedisplay[0]=1&forcedisplay[1]=2&forcedisplay[2]=12&forcedisplay[3]=15&forcedisplay[4]=16', st=st)
+print(json.dumps(r, indent=2, ensure_ascii=False)[:3000])
 
 req('GET', 'killSession', st=st)
