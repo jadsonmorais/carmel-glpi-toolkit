@@ -13,7 +13,7 @@ e sistema de etiquetas para filtragem e categorização estratégica.
 .
 ├── data/                    → arquivos .md individuais, index.md, insights.md
 │   └── vectordb/            → índice ChromaDB (RAG) — gerado localmente
-├── scripts/                 → todos os scripts Python
+├── scripts/                 → scripts Python pontuais (sem validação/CRUD estruturado)
 │   ├── _env.py              → configuração de ambiente (URLs, tokens)
 │   ├── config.json.example  → template de configuração
 │   ├── incremental-update.py → processamento incremental de tickets
@@ -22,6 +22,16 @@ e sistema de etiquetas para filtragem e categorização estratégica.
 │   ├── rag-query.py         → busca semântica e por gravidade
 │   ├── tag-manager.py       → gerencia etiquetas GLPI via REST
 │   └── rag_lib/             → módulos internos do RAG
+├── glpi_core/                → CRUD/macros determinístico para Projetos e ProjectTasks (ver seção própria abaixo)
+│   ├── schemas/              → contratos Pydantic (Project, ProjectTask, Tag, Governança, Template)
+│   ├── connection/           → cliente HTTP do GLPI (real e dry-run)
+│   ├── services/             → CRUD + regras de negócio (Project, Task, Tag, Template)
+│   ├── macros/               → orquestração de comandos compostos (templates, operações em massa)
+│   ├── templates/             → templates JSON reutilizáveis de projeto/tarefas
+│   ├── command_handler.py    → dispatcher único de comandos
+│   ├── cli.py                → entrypoint `python -m glpi_core.cli`
+│   └── rules.md              → regras de governança, nomenclatura e fluxo p/ novas macros/templates
+├── tests/                    → testes do glpi_core (pytest, sem chamadas HTTP reais)
 ├── templates/               → templates markdown para geração de conteúdo
 ├── references/              → documentação arquitetural e decisões
 ├── requirements.txt         → dependências Python
@@ -192,6 +202,73 @@ py scripts/tag-manager.py assign --itemtype Ticket --items-id 12345 --tag-id 204
 # Listar etiquetas de um ticket
 py scripts/tag-manager.py list --itemtype Ticket --items-id 12345
 ```
+
+---
+
+## glpi_core — CRUD/macros determinístico para Projetos e Tarefas
+
+Pacote Python separado dos scripts soltos de `scripts/`, focado em **criar e
+manter em massa a estrutura de Projetos/ProjectTasks do GLPI** (fases,
+milestones de aprovação, Definition of Done e tags de governança) de forma
+validada (Pydantic) e 100% determinística — sem depender de IA em runtime.
+Ver `glpi_core/rules.md` para o racional completo de nomenclatura, tags e DoD.
+
+### Templates JSON
+
+Em vez de escrever uma macro Python nova para cada projeto, descreva a árvore
+de tarefas em JSON (`glpi_core/templates/*.json`) e aplique com a macro
+genérica `apply_template_to_project`:
+
+```bash
+# Cria um Project novo a partir do template "fases_padrao" (3 marcos + 5 fases)
+py -m glpi_core.cli apply_template_to_project \
+  --payload-file payload_demo_256.json --dry-run
+
+# Aplica o template "simphony_pos_rollout" (árvore completa de 40 tarefas)
+# dentro de um Project que já existe no GLPI (project_id), sem criar um novo
+py -m glpi_core.cli apply_template_to_project \
+  --payload-file payload_demo_simphony_existing.json --dry-run
+```
+
+Remova `--dry-run` para executar de fato contra o GLPI (usa as credenciais de
+`glpi_core/config.py`, mesma lógica de resolução de `_env.py`/`config.json`).
+
+Templates disponíveis: `glpi_core/templates/fases_padrao.json` (genérico) e
+`glpi_core/templates/simphony_pos_rollout.json` (rollout de PDV com sub-fases
+e marcos de aprovação). Para criar um novo, copie um existente, ajuste `nodes`
+(cada nó pode ter `children` recursivos, `phase` para herdar o Definition of
+Done da fase, e `tag` para a etiqueta de governança a aplicar) e valide com:
+
+```python
+from glpi_core.templates import TemplateRepository
+TemplateRepository.load("nome_do_template")  # levanta erro se o JSON for inválido
+```
+
+### Operações em massa em tarefas já existentes
+
+```bash
+# Lista os comandos disponíveis
+py -m glpi_core.cli --list
+
+# Renomeia em massa aplicando um prefixo de nomenclatura
+py -m glpi_core.cli bulk_rename_tasks --payload '{"task_ids":[2740,2741],"prefix":"[POS/Simphony]"}' --dry-run
+
+# Atribui uma tag de governança (Planejado/Break-Fix/Projeto/Blocked) em massa
+py -m glpi_core.cli bulk_tag_tasks --payload '{"items_ids":[2740,2741],"tag":"Planejado"}' --dry-run
+
+# Injeta o checklist de Definition of Done em tarefas que ainda não têm
+py -m glpi_core.cli bulk_apply_dod --payload '{"task_ids":[2740],"phase":"1"}' --dry-run
+```
+
+### Testes
+
+```bash
+pip install -r requirements.txt   # inclui pydantic e pytest
+pytest tests/
+```
+
+Os testes usam um `FakeClient`/`DryRunClient` — nenhum chama a API real do
+GLPI.
 
 ---
 
