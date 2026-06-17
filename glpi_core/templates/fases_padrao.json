@@ -1,0 +1,17 @@
+{
+  "template_name": "fases_padrao",
+  "description": "Estrutura generica de projeto com 3 marcos de aprovacao e 5 fases (F1-F5), cada fase com o Definition of Done padrao e a tag Planejado.",
+  "project_defaults": {
+    "name": "Novo Projeto"
+  },
+  "nodes": [
+    { "name": "Homologação Concluída", "is_milestone": true },
+    { "name": "Rollout Realizado", "is_milestone": true },
+    { "name": "Operação Assistida", "is_milestone": true },
+    { "name": "F1 - Levantamento de Requisitos", "phase": "1", "tag": "Planejado" },
+    { "name": "F2 - Configuração de Ambiente", "phase": "2", "tag": "Planejado" },
+    { "name": "F3 - Definição Técnica", "phase": "3", "tag": "Planejado" },
+    { "name": "F4 - Testes Funcionais", "phase": "4", "tag": "Planejado" },
+    { "name": "F5 - Documentação e KB", "phase": "5", "tag": "Planejado" }
+  ]
+}

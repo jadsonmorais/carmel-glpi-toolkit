@@ -264,13 +264,13 @@ def main():
 
     # list - listar etiquetas de um item
     p_list = sub.add_parser("list", help="Listar etiquetas de um item")
-    p_list.add_argument("--itemtype", required=True, choices=["Ticket", "Problem", "Change", "Computer"])
+    p_list.add_argument("--itemtype", required=True, choices=["Ticket", "Problem", "Change", "Computer", "ProjectTask"])
     p_list.add_argument("--items-id", required=True, type=int)
     p_list.set_defaults(func=cmd_list)
 
     # assign - atribuir etiqueta
     p_assign = sub.add_parser("assign", help="Atribuir etiqueta a um item")
-    p_assign.add_argument("--itemtype", required=True, choices=["Ticket", "Problem", "Change", "Computer"])
+    p_assign.add_argument("--itemtype", required=True, choices=["Ticket", "Problem", "Change", "Computer", "ProjectTask"])
     p_assign.add_argument("--items-id", required=True, type=int)
     p_assign.add_argument("--tag-id", required=True, type=int)
     p_assign.set_defaults(func=cmd_assign)

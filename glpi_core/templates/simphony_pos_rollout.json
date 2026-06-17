@@ -1,0 +1,89 @@
+{
+  "template_name": "simphony_pos_rollout",
+  "description": "Arvore completa de rollout de PDV (ex.: Oracle Simphony): mitigacao, preparo, definicoes, execucao em piloto + rollout, e conclusao com KB e treinamentos. Reflete a estrutura real aplicada no Projeto #256 (Carmel/Simphony).",
+  "project_defaults": {
+    "name": "[POS/Simphony] Rollout"
+  },
+  "nodes": [
+    {
+      "name": "[POS/Simphony] F1 - Mitigacao",
+      "children": [
+        { "name": "[POS/Simphony] F1.1 - Atribuir TAG \"PDV\" nos ativos do GLPI correspondentes as Workstations", "phase": "1", "tag": "Planejado" },
+        { "name": "[POS/Simphony] F1.2 - Mitigacao imediata: desativar antivirus nas workstations PDV", "phase": "1", "tag": "Planejado" },
+        { "name": "[POS/Simphony] F1.3 - Verificar se todas as maquinas PDV estao com DHCP ativo", "phase": "1", "tag": "Planejado" },
+        { "name": "[POS/Simphony] F1.4 - Passar lista de IPs + MACs para amarracao no DHCP Server", "phase": "1", "tag": "Planejado" }
+      ]
+    },
+    {
+      "name": "[POS/Simphony] F2 - Preparo",
+      "children": [
+        { "name": "[POS/Simphony] F2.1 - Inventario GLPI (impressoras + workstations PDV)", "phase": "2", "tag": "Planejado" },
+        {
+          "name": "[POS/Simphony] F2.2 - Requisitos Oracle (hardware, portas de firewall, servidor)",
+          "phase": "2",
+          "tag": "Planejado",
+          "children": [
+            { "name": "[POS/Simphony] F2.2.1 - Validar se as workstations precisam ser dedicadas ao uso exclusivo de PDV", "phase": "2", "tag": "Planejado" },
+            { "name": "[POS/Simphony] F2.2.2 - Validar com a gestao a tratativa sobre o uso exclusivo do PDV", "phase": "2", "tag": "Planejado" }
+          ]
+        },
+        {
+          "name": "[POS/Simphony] F2.3 - Configuracao Kaspersky (liberar portas necessarias)",
+          "phase": "2",
+          "tag": "Planejado",
+          "children": [
+            { "name": "[POS/Simphony] F2.3.0 - Definir estrategia de protecao para tablets PDV (hardware restrito)", "phase": "2", "tag": "Planejado" },
+            { "name": "[POS/Simphony] F2.3.1 - Levantamento de informacoes com fornecedor e manuais", "phase": "2", "tag": "Planejado" },
+            { "name": "[POS/Simphony] F2.3.2 - Parametrizacao do console", "phase": "2", "tag": "Planejado" },
+            { "name": "[POS/Simphony] F2.3.3 - Testes e POC", "phase": "2", "tag": "Planejado" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "[POS/Simphony] F3 - Definicoes",
+      "is_milestone": true,
+      "children": [
+        { "name": "[POS/Simphony] F3.1 - Definir GPO do PDV (escopo + validacao com gestao de TI)", "phase": "3", "tag": "Planejado" },
+        { "name": "[POS/Simphony] F3.2 - Definir rede padrao do PDV (VLAN, rede por hotel)", "phase": "3", "tag": "Planejado" },
+        { "name": "[POS/Simphony] F3.3 - Validacao com fornecedor de rede (MACs, DHCP, GPO, impressoras)", "phase": "3", "tag": "Planejado" }
+      ]
+    },
+    {
+      "name": "[POS/Simphony] F4 - Execucao",
+      "is_milestone": true,
+      "children": [
+        { "name": "[POS/Simphony] F4.1 - Selecionar hotel piloto e agendar janela de manutencao", "phase": "4", "tag": "Planejado" },
+        { "name": "[POS/Simphony] F4.2 - Aplicar GPO, rede/VLAN e Kaspersky no hotel piloto", "phase": "4", "tag": "Planejado" },
+        { "name": "[POS/Simphony] F4.3 - Teste funcional pos-mudanca no piloto", "phase": "4", "tag": "Planejado" },
+        { "name": "[POS/Simphony] F4.4 - Plano de rollback (piloto)", "phase": "4", "tag": "Planejado" },
+        { "name": "[POS/Simphony] F4.5 - Validar resultado do piloto e ajustar antes do rollout", "phase": "4", "tag": "Planejado" },
+        { "name": "[POS/Simphony] F4.G1 - Marco: Homologacao Concluida", "is_milestone": true },
+        { "name": "[POS/Simphony] F4.6 - Rollout para demais hoteis", "phase": "4", "tag": "Planejado" },
+        { "name": "[POS/Simphony] F4.7 - Reativar antivirus com excecoes e portas corretas", "phase": "4", "tag": "Planejado" },
+        { "name": "[POS/Simphony] F4.G2 - Marco: Rollout Realizado", "is_milestone": true }
+      ]
+    },
+    {
+      "name": "[POS/Simphony] F5 - Conclusao",
+      "is_milestone": true,
+      "children": [
+        { "name": "[POS/Simphony] F5.G1 - Marco: Operacao Assistida", "is_milestone": true },
+        { "name": "[POS/Simphony] F5.1 - KB MAN = Simphony BASE (manual pratico)", "phase": "5", "tag": "Planejado" },
+        { "name": "[POS/Simphony] F5.2 - Repassar regras de GPO do PDV (documentar resultado da Fase 3)", "phase": "5", "tag": "Planejado" },
+        { "name": "[POS/Simphony] F5.3 - Levantar erros conhecidos e criar artigos SDC/SDV", "phase": "5", "tag": "Planejado" },
+        { "name": "[POS/Simphony] F5.4 - KB BEC = Erros Comuns Simphony (associando os SDC/SDV)", "phase": "5", "tag": "Planejado" },
+        {
+          "name": "[POS/Simphony] F5.5 - Treinamentos",
+          "is_milestone": true,
+          "children": [
+            { "name": "[POS/Simphony] F5.5.1 - Trilha: Simphony para Suporte", "phase": "5", "tag": "Planejado" },
+            { "name": "[POS/Simphony] F5.5.2 - Trilha: Simphony para Fiscal", "phase": "5", "tag": "Planejado" },
+            { "name": "[POS/Simphony] F5.5.3 - Trilha: Simphony para Controladoria", "phase": "5", "tag": "Planejado" },
+            { "name": "[POS/Simphony] F5.5.4 - Trilha: Simphony Avancado", "phase": "5", "tag": "Planejado" }
+          ]
+        }
+      ]
+    }
+  ]
+}

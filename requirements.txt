@@ -2,6 +2,12 @@
 # Usadas por: incremental-update.py, analyze-backlog.py, tag-manager.py
 # Nenhuma dependência extra necessária — usam apenas urllib e stdlib
 
+# Dependências glpi_core (pacote CRUD/macros determinístico)
+pydantic>=2.0.0
+
+# Dev/testes
+pytest>=8.0.0
+
 # Dependências RAG (opcionais — só necessárias para rag-build.py e rag-query.py)
 chromadb>=0.4.0
 sentence-transformers>=2.2.0

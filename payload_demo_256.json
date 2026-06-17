@@ -1,0 +1,6 @@
+{
+  "template": "fases_padrao",
+  "project_overrides": {
+    "name": "Projeto 256 - Demo"
+  }
+}
