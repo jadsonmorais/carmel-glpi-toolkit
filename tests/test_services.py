@@ -172,20 +172,22 @@ def test_task_service_bulk_apply_dod_injeta_quando_phase_informada(fake_client):
     fake_client.queue_response("GET", "ProjectTask/1", {"id": 1, "name": "F1 - Tarefa", "projects_id": 256, "content": "descricao\n\nDEFINITION OF DONE:\n..."})
 
     service = TaskService(fake_client)
-    results = service.bulk_apply_dod([1], phase=TaskPhase.F1)
+    result = service.bulk_apply_dod([1], phase=TaskPhase.F1)
 
-    assert "DEFINITION OF DONE" in results[0].content
+    assert len(result["updated"]) == 1
+    assert "DEFINITION OF DONE" in result["updated"][0].content
 
 
 def test_task_service_bulk_apply_dod_pula_quando_ja_tem_checklist(fake_client):
     fake_client.queue_response("GET", "ProjectTask/1", {"id": 1, "name": "F1 - Tarefa", "projects_id": 256, "content": "[ ] ja tem"})
 
     service = TaskService(fake_client)
-    results = service.bulk_apply_dod([1], phase=TaskPhase.F1)
+    result = service.bulk_apply_dod([1], phase=TaskPhase.F1)
 
     put_calls = [c for c in fake_client.calls if c[0] == "PUT"]
     assert len(put_calls) == 0
-    assert results[0].content == "[ ] ja tem"
+    assert result["updated"] == []
+    assert result["skipped"][0]["reason"] == "dod_already_present"
 
 
 def test_task_service_discover_project_tasks_filtra_por_projects_id(fake_client):

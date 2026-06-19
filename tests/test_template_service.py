@@ -31,7 +31,7 @@ def test_apply_cria_project_quando_project_id_nao_informado(fake_client):
     fake_client.queue_response("POST", "PluginTagTagItem", {"id": 901})
 
     ctx = CommandContext(fake_client)
-    service = TemplateService(ctx)
+    service = TemplateService(ctx.projects, ctx.tasks, ctx.tags)
     result = service.apply(_simple_template(), project_id=None, project_overrides=None)
 
     assert result["project_id"] == 100
@@ -52,7 +52,7 @@ def test_apply_reaproveita_project_existente_sem_criar_novo(fake_client):
     fake_client.queue_response("POST", "PluginTagTagItem", {"id": 901})
 
     ctx = CommandContext(fake_client)
-    service = TemplateService(ctx)
+    service = TemplateService(ctx.projects, ctx.tasks, ctx.tags)
     result = service.apply(_simple_template(), project_id=256, project_overrides=None)
 
     assert result["project_id"] == 256

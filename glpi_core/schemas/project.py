@@ -71,7 +71,7 @@ class ProjectCreateSchema(BaseModel):
 class ProjectReadSchema(BaseModel):
     """Espelha o retorno da API GLPI para um Project (campos relevantes)."""
     id: int
-    name: str
+    name: str = ""
     content: Optional[str] = None
     entities_id: int = 0
     comment: Optional[str] = None

@@ -9,27 +9,9 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 from glpi_core.schemas.governance import GovernanceTag
-from glpi_core.schemas.task import TaskCreateSchema, TaskPhase
+from glpi_core.schemas.task import TASK_WRITABLE_OPTIONAL_FIELDS, TaskCreateSchema, TaskPhase
 
-# Campos espelhados 1:1 de TaskCreateSchema (alem de name/content/is_milestone/phase/tag/children).
-_MIRRORED_TASK_FIELDS = (
-    "comment",
-    "percent_done",
-    "auto_percent_done",
-    "plan_start_date",
-    "plan_end_date",
-    "real_start_date",
-    "real_end_date",
-    "planned_duration",
-    "projectstates_id",
-    "projecttasktypes_id",
-    "projecttasktemplates_id",
-    "users_id",
-    "entities_id",
-    "is_recursive",
-    "is_template",
-    "template_name",
-)
+_MIRRORED_TASK_FIELDS = TASK_WRITABLE_OPTIONAL_FIELDS
 
 
 class TaskTemplateNode(BaseModel):

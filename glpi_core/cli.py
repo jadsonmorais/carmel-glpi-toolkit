@@ -11,7 +11,7 @@ from glpi_core.connection.client import GLPIClient
 from glpi_core.connection.dry_run import DryRunClient
 
 # importar os modulos de macro registra seus comandos no dispatcher
-from glpi_core.macros import apply_template, bulk_ops  # noqa: F401
+from glpi_core.macros import apply_template, bulk_ops, query_ops  # noqa: F401
 
 
 def main() -> None:

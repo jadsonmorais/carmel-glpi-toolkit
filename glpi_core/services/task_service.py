@@ -2,10 +2,15 @@ from __future__ import annotations
 
 from typing import Optional
 
+from glpi_core.connection.client import GLPIRequestError
 from glpi_core.schemas.task import TaskCreateSchema, TaskPhase, TaskReadSchema
 
+import re as _re
+
 # Prefixos de nomenclatura ja aplicados (idempotencia em bulk_rename). Ver rules.md.
-_PHASE_NAME_RE = __import__("re").compile(r"^F\d+(\.\d+)*\s*-\s*.+")
+_PHASE_NAME_RE = _re.compile(r"^F\d+(\.\d+)*\s*-\s*.+")
+# Infere fase pelo prefixo "F<n>" ou "[Sistema] F<n>" no nome da tarefa.
+_PHASE_INFER_RE = _re.compile(r"^(?:\[.+?\]\s+)?F(\d+)")
 
 
 class TaskService:
@@ -61,31 +66,59 @@ class TaskService:
             results.append(self.get(task_id))
         return results
 
-    def bulk_apply_dod(self, task_ids: list[int], phase: Optional[TaskPhase] = None) -> list[TaskReadSchema]:
+    def bulk_apply_dod(
+        self, task_ids: list[int], phase: Optional[TaskPhase] = None
+    ) -> dict[str, list]:
         """Injeta o checklist de DoD em massa em tarefas ja existentes.
 
         Usa `phase` explicito quando informado (tarefas criadas fora deste pacote,
-        sem o campo `phase` no schema original); senao, pula a tarefa. Idempotente:
-        tarefas que ja tem "[ ]" no content sao puladas. Equivalente ao que
-        scripts/_apply_dod_256.py fazia manualmente.
+        sem o campo `phase` no schema original). Idempotente: tarefas que ja tem
+        "[ ]" no content sao puladas. Equivalente ao que scripts/_apply_dod_256.py
+        fazia manualmente.
+
+        Retorna {"updated": [...], "skipped": [...]} para dar visibilidade sobre o
+        que foi alterado e o que foi ignorado (ja tinha DoD, fase nao informada, etc.).
         """
-        results = []
+        updated: list[TaskReadSchema] = []
+        skipped: list[dict] = []
+
         for task_id in task_ids:
             current = self.get(task_id)
             content = current.content or ""
+
             if "[ ]" in content or "[x]" in content.lower():
-                results.append(current)
+                skipped.append({"id": task_id, "reason": "dod_already_present"})
                 continue
+
             if phase is None:
-                results.append(current)
+                skipped.append({"id": task_id, "reason": "phase_not_informed"})
                 continue
+
             dod_schema = TaskCreateSchema(name=current.name, projects_id=current.projects_id, phase=phase)
             dod_block = dod_schema.build_dod_block()
             if not dod_block:
-                results.append(current)
+                skipped.append({"id": task_id, "reason": "no_dod_for_phase"})
                 continue
-            results.append(self.append_content(task_id, dod_block))
-        return results
+
+            updated.append(self.append_content(task_id, dod_block))
+
+        return {"updated": updated, "skipped": skipped}
+
+    @staticmethod
+    def infer_phase_from_name(name: str) -> Optional[TaskPhase]:
+        """Tenta inferir a fase de uma tarefa pelo prefixo do nome.
+
+        Aceita tanto "F2 - Descrição" quanto "[Sistema] F2 - Descrição".
+        Retorna None se o nome nao seguir o padrao esperado ou a fase nao existir.
+        """
+        m = _PHASE_INFER_RE.match(name)
+        if not m:
+            return None
+        digit = m.group(1)
+        try:
+            return TaskPhase(digit)
+        except ValueError:
+            return None
 
     def discover_project_tasks(self, project_id: int, id_range: tuple[int, int]) -> list[TaskReadSchema]:
         """Descobre as ProjectTasks reais de um projeto varrendo um range de IDs.
@@ -102,8 +135,10 @@ class TaskService:
         for task_id in range(start, end + 1):
             try:
                 raw = self._client.request("GET", f"ProjectTask/{task_id}")
-            except Exception:
-                continue
+            except GLPIRequestError as e:
+                if e.status == 404:
+                    continue
+                raise
             if not isinstance(raw, dict) or raw.get("projects_id") != project_id:
                 continue
             found.append(TaskReadSchema.model_validate(raw))

@@ -6,6 +6,7 @@ from __future__ import annotations
 import json
 import os
 
+from glpi_core.schemas.project import ProjectCreateSchema
 from glpi_core.schemas.template import ProjectTemplateSchema
 
 _TEMPLATES_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -23,7 +24,15 @@ class TemplateRepository:
             )
         with open(path, "r", encoding="utf-8") as f:
             raw = json.load(f)
-        return ProjectTemplateSchema.model_validate(raw)
+        template = ProjectTemplateSchema.model_validate(raw)
+        if template.project_defaults:
+            try:
+                ProjectCreateSchema(**template.project_defaults)
+            except Exception as exc:
+                raise ValueError(
+                    f"template '{name}': project_defaults invalido — {exc}"
+                ) from exc
+        return template
 
     @staticmethod
     def list_available() -> list[str]:

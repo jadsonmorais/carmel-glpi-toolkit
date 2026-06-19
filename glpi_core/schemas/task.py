@@ -38,8 +38,8 @@ DOD_BY_PHASE: dict[TaskPhase, list[str]] = {
 
 # Campos graváveis de ProjectTask na API GLPI (fora de name/content/is_milestone/
 # projects_id/projecttasks_id, já tratados separadamente). Ver glpi_core/rules.md
-# secao "Campos suportados".
-_WRITABLE_OPTIONAL_FIELDS = (
+# secao "Campos suportados". Exportado para reuso em schemas/template.py.
+TASK_WRITABLE_OPTIONAL_FIELDS: tuple[str, ...] = (
     "comment",
     "percent_done",
     "auto_percent_done",
@@ -93,8 +93,10 @@ class TaskCreateSchema(BaseModel):
     @field_validator("name")
     @classmethod
     def name_must_follow_convention(cls, v: str) -> str:
-        if not v[:1].isalnum():
-            raise ValueError("nome de tarefa nao pode iniciar com caractere especial")
+        # Nomes no padrao "[Sistema/Area] - Acao" sao validos (iniciam com "[").
+        # Rejeitamos apenas caracteres que nao sao alfanumericos nem "[".
+        if not v[:1].isalnum() and not v.startswith("["):
+            raise ValueError("nome de tarefa deve iniciar com letra, numero ou '['")
         return v
 
     def to_glpi_payload(self) -> dict:
@@ -107,7 +109,7 @@ class TaskCreateSchema(BaseModel):
             payload["projecttasks_id"] = self.projecttasks_id
         if self.content:
             payload["content"] = self.content
-        for field in _WRITABLE_OPTIONAL_FIELDS:
+        for field in TASK_WRITABLE_OPTIONAL_FIELDS:
             value = getattr(self, field)
             if value is None:
                 continue
@@ -125,8 +127,8 @@ class TaskCreateSchema(BaseModel):
 class TaskReadSchema(BaseModel):
     """Espelha o retorno da API GLPI para uma ProjectTask (campos relevantes)."""
     id: int
-    name: str
-    projects_id: int
+    name: str = ""
+    projects_id: int = 0
     projecttasks_id: Optional[int] = None
     is_milestone: int = 0
     content: Optional[str] = None

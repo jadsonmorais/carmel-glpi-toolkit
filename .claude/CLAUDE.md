@@ -1,3 +1,59 @@
+# glpi_core — Regra de Uso pelo Agente de IA
+
+**NUNCA crie tarefas, projetos ou atribua tags via script ad-hoc ou chamada HTTP direta.**
+Sempre use o pacote `glpi_core`. Ele valida entradas com Pydantic, garante nomenclatura
+padrao, injeta DoD por fase e suporta `--dry-run` para simular sem risco.
+
+## Descoberta
+
+```bash
+# Listar todos os comandos disponiveis
+python -m glpi_core --list
+
+# Listar templates de projeto disponiveis
+python -c "from glpi_core.templates import TemplateRepository; print(TemplateRepository.list_available())"
+```
+
+## Comandos mais usados
+
+| Comando | Quando usar |
+|---------|-------------|
+| `apply_template_to_project` | Criar arvore de tarefas num projeto existente ou novo |
+| `project_overview` | Ver estado atual de um projeto: DoD pendente, tags ausentes, milestones |
+| `bulk_tag_project` | Taguear todas as tarefas de um projeto de uma vez |
+| `bulk_apply_dod_to_project` | Injetar DoD em todas as tarefas que ainda nao tem checklist |
+| `bulk_apply_dod` | Injetar DoD em uma lista especifica de task IDs |
+| `bulk_rename_tasks` | Aplicar prefixo de nomenclatura em massa |
+| `bulk_tag_tasks` | Taguear lista especifica de task IDs |
+
+## Exemplos de payload
+
+```bash
+# Ver estado de um projeto
+python -m glpi_core project_overview \
+  --payload '{"project_id": 256, "id_range": [100, 200]}'
+
+# Taguear todo o projeto como Planejado
+python -m glpi_core bulk_tag_project \
+  --payload '{"project_id": 256, "id_range": [100, 200], "tag": "Planejado"}'
+
+# Injetar DoD em todas as tarefas sem checklist
+python -m glpi_core bulk_apply_dod_to_project \
+  --payload '{"project_id": 256, "id_range": [100, 200]}'
+
+# Criar projeto de rollout Simphony
+python -m glpi_core apply_template_to_project \
+  --payload '{"template": "simphony_pos_rollout", "project_id": 256}'
+
+# Criar projeto de infraestrutura novo
+python -m glpi_core apply_template_to_project \
+  --payload '{"template": "infra_deploy", "project_overrides": {"name": "[Infra] Migração Switch Core"}}'
+```
+
+Sempre teste com `--dry-run` antes de executar contra o GLPI real.
+
+---
+
 # Skill: VerdanaDesk Chamados
 
 Diretório: C:\projetos\carmel\glpi

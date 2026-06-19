@@ -37,8 +37,19 @@
 - A macro genérica `apply_template_to_project` (`macros/apply_template.py`) aplica qualquer template:
   - Com `project_id`: usa um `Project` já existente no GLPI e só cria a árvore de tarefas dentro dele (ex.: padronizar/expandir um projeto que já existe, como o Projeto #256 real).
   - Sem `project_id` (com `project_overrides`): cria um `Project` novo a partir de `template.project_defaults` + overrides, e then a árvore.
+- Campos `content` de `TaskTemplateNode` devem ter no máximo **80 caracteres por linha**. Use `\n` para quebrar em pontos naturais de frase — o Gantt do GLPI quebra o visual se a linha for longa demais.
 - Para adicionar um template novo: copiar um `.json` existente como base, ajustar `nodes` (cada nó pode ter `children` recursivos, `phase` para herdar o DoD da fase, e `tag` para a tag de governança a aplicar), validar com `TemplateRepository.load(...)` e testar com `--dry-run` antes de rodar contra o GLPI real.
 - Exemplos: `fases_padrao.json` (5 fases simples, sem subtarefas) e `simphony_pos_rollout.json` (árvore completa com sub-fases, replicando a estrutura real aplicada no Projeto #256).
+
+## Consulta e visibilidade de projetos
+
+Para inspecionar e corrigir o estado de projetos existentes no GLPI, use as macros de `macros/query_ops.py`:
+
+- `project_overview` (payload `{project_id, id_range}`) → retorna resumo do projeto: `tasks_total`, `tasks_by_status`, `milestones_pending`, `tasks_missing_dod`, `tasks_missing_tag`, `tasks_blocked`. Use como primeiro passo antes de qualquer operação em massa.
+- `bulk_tag_project` (payload `{project_id, id_range, tag}`) → atribui uma `GovernanceTag` a **todas** as tarefas do projeto sem precisar listar IDs. Resolve o `id` da tag uma única vez.
+- `bulk_apply_dod_to_project` (payload `{project_id, id_range}`) → injeta DoD em todas as tarefas que ainda não têm checklist. Infere a fase automaticamente pelo prefixo `F<n>` ou `[Sistema] F<n>` no nome. Milestones são pulados.
+
+Todas as macros usam `TaskService.discover_project_tasks` internamente para descobrir as tarefas reais do projeto (workaround necessário desta instância GLPI — ver seção "Operações em massa").
 
 ## Operações em massa
 

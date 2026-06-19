@@ -18,7 +18,7 @@ class CommandContext:
         self.projects = ProjectService(client)
         self.tasks = TaskService(client)
         self.tags = TagService(client)
-        self.templates = TemplateService(self)
+        self.templates = TemplateService(self.projects, self.tasks, self.tags)
 
 
 _REGISTRY: dict[str, Callable[[CommandContext, dict], Any]] = {}

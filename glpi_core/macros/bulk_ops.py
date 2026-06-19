@@ -32,8 +32,11 @@ def bulk_apply_dod(ctx: CommandContext, payload: dict) -> dict:
         task_ids = [t.id for t in discovered]
 
     phase = TaskPhase(payload["phase"]) if payload.get("phase") else None
-    results = ctx.tasks.bulk_apply_dod(task_ids, phase=phase)
-    return {"updated": [t.model_dump() for t in results]}
+    result = ctx.tasks.bulk_apply_dod(task_ids, phase=phase)
+    return {
+        "updated": [t.model_dump() for t in result["updated"]],
+        "skipped": result["skipped"],
+    }
 
 
 @register_macro("bulk_tag_tasks")

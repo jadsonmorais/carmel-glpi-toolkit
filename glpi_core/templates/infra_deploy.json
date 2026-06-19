@@ -1,0 +1,128 @@
+{
+  "template_name": "infra_deploy",
+  "description": "Template generico para projetos de infraestrutura: implantacao de rede, servidor, storage, ou migracao de sistema. Cobre levantamento, planejamento, preparacao, execucao em janela de manutencao e pos-implantacao com documentacao.",
+  "project_defaults": {
+    "name": "[Infra] Novo Projeto"
+  },
+  "nodes": [
+    { "name": "Aprovacao Tecnica", "is_milestone": true },
+    { "name": "Janela de Manutencao Confirmada", "is_milestone": true },
+    { "name": "Go-Live", "is_milestone": true },
+    { "name": "Encerramento", "is_milestone": true },
+    {
+      "name": "F1 - Levantamento e Escopo",
+      "children": [
+        {
+          "name": "[Infra] F1.1 - Inventariar ambiente atual",
+          "phase": "1",
+          "tag": "Planejado",
+          "content": "Levantar todos os ativos envolvidos: equipamentos, versoes,\nIPs, MACs, topologia de rede, dependencias de servicos."
+        },
+        {
+          "name": "[Infra] F1.2 - Mapear riscos e dependencias",
+          "phase": "1",
+          "tag": "Planejado",
+          "content": "Identificar sistemas dependentes, janelas de impacto,\nfornecedores envolvidos e pontos de falha potenciais."
+        },
+        {
+          "name": "[Infra] F1.3 - Definir escopo e criterios de sucesso",
+          "phase": "1",
+          "tag": "Planejado",
+          "content": "O que entra e o que NAO entra no projeto.\nCriterios objetivos que definem quando o projeto esta concluido."
+        }
+      ]
+    },
+    {
+      "name": "F2 - Planejamento",
+      "children": [
+        {
+          "name": "[Infra] F2.1 - Elaborar cronograma e definir responsaveis",
+          "phase": "2",
+          "tag": "Planejado",
+          "content": "Datas de cada fase, responsavel tecnico por tarefa,\naprovadores e stakeholders."
+        },
+        {
+          "name": "[Infra] F2.2 - Definir plano de rollback",
+          "phase": "2",
+          "tag": "Planejado",
+          "content": "Procedimento passo a passo para reverter a mudanca\nem caso de falha. Criterio de acionamento do rollback."
+        },
+        {
+          "name": "[Infra] F2.3 - Agendar e comunicar janela de manutencao",
+          "phase": "2",
+          "tag": "Planejado",
+          "content": "Horario, duracao estimada, sistemas afetados,\npessoas que precisam ser notificadas."
+        }
+      ]
+    },
+    {
+      "name": "F3 - Preparacao",
+      "children": [
+        {
+          "name": "[Infra] F3.1 - Adquirir ou provisionar recursos",
+          "phase": "3",
+          "tag": "Planejado",
+          "content": "Equipamentos, licencas, acessos, credenciais necessarios\npara a execucao. Confirmar recebimento/disponibilidade."
+        },
+        {
+          "name": "[Infra] F3.2 - Configurar e validar em ambiente de homologacao",
+          "phase": "3",
+          "tag": "Planejado",
+          "content": "Montar e testar a solucao em ambiente isolado\nantes de aplicar em producao. Documentar resultado."
+        },
+        {
+          "name": "[Infra] F3.3 - Obter aprovacao tecnica",
+          "phase": "3",
+          "tag": "Planejado",
+          "content": "Apresentar resultado da homologacao para o responsavel\ntecnico/gestor. Registrar aprovacao formal."
+        }
+      ]
+    },
+    {
+      "name": "F4 - Execucao",
+      "children": [
+        {
+          "name": "[Infra] F4.1 - Executar mudanca na janela de manutencao",
+          "phase": "4",
+          "tag": "Planejado",
+          "content": "Aplicar as mudancas conforme o plano. Registrar horario\nde inicio, cada etapa executada e resultado."
+        },
+        {
+          "name": "[Infra] F4.2 - Validar funcionamento pos-mudanca",
+          "phase": "4",
+          "tag": "Planejado",
+          "content": "Testes funcionais imediatos: ping, acesso a sistemas,\nservicos criticos. Registrar evidencia (print/log)."
+        },
+        {
+          "name": "[Infra] F4.3 - Confirmar go-live com stakeholders",
+          "phase": "4",
+          "tag": "Planejado",
+          "content": "Comunicar que a mudanca foi aplicada com sucesso.\nObter confirmacao dos usuarios/areas impactadas."
+        }
+      ]
+    },
+    {
+      "name": "F5 - Pos-implantacao",
+      "children": [
+        {
+          "name": "[Infra] F5.1 - Monitorar estabilidade (primeiras 48-72h)",
+          "phase": "5",
+          "tag": "Planejado",
+          "content": "Acompanhar logs, alertas e chamados relacionados.\nRegistrar qualquer anomalia e acao corretiva tomada."
+        },
+        {
+          "name": "[Infra] F5.2 - Atualizar documentacao de infraestrutura",
+          "phase": "5",
+          "tag": "Planejado",
+          "content": "Atualizar diagramas, planilhas de inventario,\ndocumentos de configuracao e qualquer base de\nconhecimento afetada."
+        },
+        {
+          "name": "[Infra] F5.3 - Publicar artigo de KB",
+          "phase": "5",
+          "tag": "Planejado",
+          "content": "Criar artigo na base de conhecimento descrevendo a\nsolucao, configuracoes importantes e erros conhecidos."
+        }
+      ]
+    }
+  ]
+}
